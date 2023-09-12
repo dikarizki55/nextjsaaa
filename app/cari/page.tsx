@@ -18,7 +18,8 @@ export default function Cari() {
             <input type="text" className='border rounded border-black' placeholder='Cari User Github'/>
             <button className='border border-black rounded'>Cari Orang</button>
         </form>
-        <SectionResult query={query}/>
+        {query && <SectionResult query={query}/>}
+
     </div>
   )
 }
