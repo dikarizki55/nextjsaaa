@@ -4,24 +4,34 @@ import type { Brand } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
-export const AddProduct = ({ brands }: { brands: Brand[] }) => {
-  const [title, setTitle] = useState("");
-  const [price, setPrice] = useState("");
-  const [brand, setBrand] = useState("");
+type Product = {
+  id: number;
+  title: string;
+  price: number;
+  brandId: number;
+};
+
+export const UpdateProduct = ({
+  brands,
+  product,
+}: {
+  brands: Brand[];
+  product: Product;
+}) => {
+  const [title, setTitle] = useState(product.title);
+  const [price, setPrice] = useState(product.price);
+  const [brand, setBrand] = useState(product.brandId);
   const [isOpen, setIsOpen] = useState(false);
 
   const router = useRouter();
 
-  const handleSubmit = async (e: SyntheticEvent) => {
+  const handleUpdate = async (e: SyntheticEvent) => {
     e.preventDefault();
-    await axios.post("/api/products", {
+    await axios.patch(`/api/products/${product.id}`, {
       title: title,
       price: Number(price),
       brandId: Number(brand),
     });
-    setTitle("");
-    setPrice("");
-    setBrand("");
     router.refresh();
     setIsOpen(false);
   };
@@ -32,13 +42,13 @@ export const AddProduct = ({ brands }: { brands: Brand[] }) => {
 
   return (
     <div>
-      <button className="btn" onClick={handleModal}>
-        Add New
+      <button className="btn btn-info btn-sm" onClick={handleModal}>
+        Edit
       </button>
       <div className={isOpen ? "modal modal-open" : "modal"}>
         <div className="modal-box">
-          <h3 className="font-bold text-lg">Add New Product</h3>
-          <form onSubmit={handleSubmit}>
+          <h3 className="font-bold text-lg">Update {product.title}</h3>
+          <form onSubmit={handleUpdate}>
             <div className="form-control w-full">
               <label className="label font-bold">Product Name</label>
               <input
@@ -54,7 +64,7 @@ export const AddProduct = ({ brands }: { brands: Brand[] }) => {
               <input
                 type="text"
                 value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                onChange={(e) => setPrice(Number(e.target.value))}
                 className="input input-bordered"
                 placeholder="Price"
               />
@@ -64,11 +74,8 @@ export const AddProduct = ({ brands }: { brands: Brand[] }) => {
               <select
                 className="select select-bordered"
                 value={brand}
-                onChange={(e) => setBrand(e.target.value)}
+                onChange={(e) => setBrand(Number(e.target.value))}
               >
-                <option value="" disabled>
-                  Select a Brand
-                </option>
                 {brands.map((brand) => (
                   <option value={brand.id} key={brand.id}>
                     {brand.name}
@@ -81,7 +88,7 @@ export const AddProduct = ({ brands }: { brands: Brand[] }) => {
                 Close
               </button>
               <button type="submit" className="btn btn-primary">
-                Save
+                Update
               </button>
             </div>
           </form>
